@@ -13,6 +13,18 @@ class AuthContainer extends Component {
             code: null,
             step: this.props.step || 1
         };
+        this.checkContainerProps = this.checkContainerProps.bind(this);
+        this.checkAndCallPropFunction = this.checkAndCallPropFunction.bind(this);
+        this.doLogin = this.doLogin.bind(this);
+        this.doSocialLogin = this.doSocialLogin.bind(this);
+        this.doSignUp = this.doSignUp.bind(this);
+        this.requestPasswordRequestCode = this.requestPasswordRequestCode.bind(this);
+        this.requestPasswordValidateCode = this.requestPasswordValidateCode.bind(this);
+        this.resetPasswordWithCode = this.resetPasswordWithCode.bind(this);
+        this.getView = this.getView.bind(this);
+        this.mountProps = this.mountProps.bind(this);
+        this.changeStep = this.changeStep.bind(this);
+        this.changeRoute = this.changeRoute.bind(this);
     }
 
     componentDidMount () {
@@ -298,7 +310,7 @@ class AuthContainer extends Component {
         } else if (this.props[`${route}View`]) {
             return this.props[`${route}View`];
         } else {
-            throw new Error('View not defined for this route');
+            throw new Error(`View not defined for this route, please define a ${route}View`);
         }
     }
 
