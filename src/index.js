@@ -304,7 +304,7 @@ class AuthContainer extends Component {
      * @returns {*}
      */
     getView () {
-        const {route} = this.props.route || this.state.route;
+        const route = this.props.route || this.state.route;
         if (this.props.children) {
             return this.props.children;
         } else if (this.props[`${route}View`]) {
