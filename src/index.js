@@ -25,6 +25,7 @@ class AuthContainer extends Component {
         this.mountProps = this.mountProps.bind(this);
         this.changeStep = this.changeStep.bind(this);
         this.changeRoute = this.changeRoute.bind(this);
+        this.getFieldError = this.getFieldError.bind(this);
     }
 
     componentDidMount () {
@@ -246,6 +247,10 @@ class AuthContainer extends Component {
         };
     }
 
+    getFieldError (field) {
+        return this.state.error && this.state.error.body && this.state.error.body[field];
+    }
+
     /**
      * On route change, set state and run callback
      * @param route
@@ -275,6 +280,7 @@ class AuthContainer extends Component {
         // Default props for all views
         authProps.loading = this.state.loading;
         authProps.error = this.state.error;
+        authProps.getFieldError = this.getFieldError;
         authProps.changeRoute = this.changeRoute;
 
         // Specific props for each view
@@ -315,7 +321,7 @@ class AuthContainer extends Component {
     }
 
     render () {
-        return React.cloneElement(this.getView(), this.mountProps());
+        return React.createElement(this.getView(), this.mountProps());
     }
 }
 

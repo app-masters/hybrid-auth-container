@@ -1,6 +1,6 @@
 {
   "name": "@app-masters/hybrid-auth-container",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "A React and React Native App Masters auth container",
   "main": "dist/index.js",
   "scripts": {
