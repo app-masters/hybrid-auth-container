@@ -13,6 +13,7 @@ class AuthContainer extends Component {
             code: null,
             step: this.props.step || 1
         };
+        // Bind of defined methods
         this.checkContainerProps = this.checkContainerProps.bind(this);
         this.checkAndCallPropFunction = this.checkAndCallPropFunction.bind(this);
         this.doLogin = this.doLogin.bind(this);
@@ -75,6 +76,11 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * Login user and call defined callbacks
+     * @param userObject
+     * @returns {Promise<null>}
+     */
     async doLogin (userObject) {
         this.setState({loading: true, error: null});
 
@@ -84,15 +90,15 @@ class AuthContainer extends Component {
         if (errorObject) {
             // Body is not a valid object
             this.setState({loading: false, error: errorObject});
-            this.checkAndCallPropFunction('onLoginFailed', errorObject);
+            await this.checkAndCallPropFunction('onLoginFailed', errorObject);
             return null;
         } else {
             // Login user
             const apiUrl = this.props.loginUrl || '/auth/login';
             try {
                 const response = await Http.post(apiUrl, userObject);
-                this.checkAndCallPropFunction('onLoginSuccess', response);
-                this.checkAndCallPropFunction('onUserAuthenticated', response);
+                await this.checkAndCallPropFunction('onLoginSuccess', response);
+                await this.checkAndCallPropFunction('onUserAuthenticated', response);
                 this.setState({loading: false, auth: response});
             } catch (error) {
                 this.setState({loading: false, error: error});
@@ -101,6 +107,12 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * Login user on defined social network (google, facebook), may be a sign-up
+     * @param userObject
+     * @param network
+     * @returns {Promise<null>}
+     */
     async doSocialLogin (userObject, network) {
         this.setState({loading: true, error: null});
 
@@ -110,15 +122,15 @@ class AuthContainer extends Component {
         if (errorObject) {
             // Body is not a valid object
             this.setState({loading: false, error: errorObject});
-            this.checkAndCallPropFunction('onSocialLoginFailed', errorObject);
+            await this.checkAndCallPropFunction('onSocialLoginFailed', errorObject);
             return null;
         } else {
             // Login user
             const apiUrl = this.props.socialLoginUrl || '/auth/loginsocial';
             try {
                 const response = await Http.post(apiUrl, { network, ...userObject });
-                this.checkAndCallPropFunction('onSocialLoginSuccess', response);
-                this.checkAndCallPropFunction('onUserAuthenticated', response);
+                await this.checkAndCallPropFunction('onSocialLoginSuccess', response);
+                await this.checkAndCallPropFunction('onUserAuthenticated', response);
                 this.setState({loading: false, auth: response});
             } catch (error) {
                 this.setState({loading: false, error: error});
@@ -127,6 +139,11 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * Sign up user, creating a new user and call defined callbacks
+     * @param userObject
+     * @returns {Promise<null>}
+     */
     async doSignUp (userObject) {
         this.setState({loading: true, error: null});
 
@@ -136,15 +153,15 @@ class AuthContainer extends Component {
         if (errorObject) {
             // Body is not a valid object
             this.setState({loading: false, error: errorObject});
-            this.checkAndCallPropFunction('onSingUpFailed', errorObject);
+            await this.checkAndCallPropFunction('onSingUpFailed', errorObject);
             return null;
         } else {
-            // Login user
+            // Sign up user
             const apiUrl = this.props.signUpUrl || '/auth/signup';
             try {
                 const response = await Http.post(apiUrl, userObject);
-                this.checkAndCallPropFunction('onSingUpSuccess', response);
-                this.checkAndCallPropFunction('onUserAuthenticated', response);
+                await this.checkAndCallPropFunction('onSingUpSuccess', response);
+                await this.checkAndCallPropFunction('onUserAuthenticated', response);
                 this.setState({loading: false, auth: response});
             } catch (error) {
                 this.setState({loading: false, error: error});
@@ -153,6 +170,11 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * First step of password recovery, sending a code to defined email
+     * @param email
+     * @returns {Promise<null>}
+     */
     async requestPasswordRequestCode (email) {
         this.setState({loading: true, error: null});
 
@@ -162,10 +184,10 @@ class AuthContainer extends Component {
         if (errorObject) {
             // Body is not a valid object
             this.setState({loading: false, error: errorObject});
-            this.checkAndCallPropFunction('onPasswordResetFail', errorObject);
+            await this.checkAndCallPropFunction('onPasswordResetFail', errorObject);
             return null;
         } else {
-            // Login user
+            // Request code
             const apiUrl = this.props.requestCodeUrl || '/auth/requestpassword';
             try {
                 await Http.post(apiUrl, {email: email});
@@ -178,6 +200,12 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * Second step of password recovery, checking the code to validate the user email
+     * @param code
+     * @param email
+     * @returns {Promise<null>}
+     */
     async requestPasswordValidateCode (code, email) {
         this.setState({loading: true, error: null});
 
@@ -187,10 +215,10 @@ class AuthContainer extends Component {
             // No email defined for recovery
             const error = this.mountError('error', 'Nenhum email foi definido para a validação do código');
             this.setState({loading: false, error: error});
-            this.checkAndCallPropFunction('onPasswordResetFail', error);
+            await this.checkAndCallPropFunction('onPasswordResetFail', error);
             return null;
         } else {
-            // Login user
+            // Check code to validate the email
             const apiUrl = this.props.validateCodeUrl || '/auth/validatecode';
             try {
                 await Http.post(apiUrl, {email: requestedEmail, code: code});
@@ -202,6 +230,14 @@ class AuthContainer extends Component {
             }
         }
     }
+
+    /**
+     * Third step of password recovery, defining a new password for the user, with the validated code and email
+     * @param newPassword
+     * @param code
+     * @param email
+     * @returns {Promise<null>}
+     */
     async resetPasswordWithCode (newPassword, code, email) {
         this.setState({loading: true, error: null});
 
@@ -212,16 +248,16 @@ class AuthContainer extends Component {
             // No email defined for recovery
             const error = this.mountError('error', 'Nenhum email foi definido para redefinição da senha');
             this.setState({loading: false, error: error});
-            this.checkAndCallPropFunction('onPasswordResetFail', error);
+            await this.checkAndCallPropFunction('onPasswordResetFail', error);
             return null;
         } else if (!providedCode) {
             // No email defined for recovery
             const error = this.mountError('error', 'Código não definido para redefinição de senha');
             this.setState({loading: false, error: error});
-            this.checkAndCallPropFunction('onPasswordResetFail', error);
+            await this.checkAndCallPropFunction('onPasswordResetFail', error);
             return null;
         } else {
-            // Login user
+            // Reset password for defined email
             const apiUrl = this.props.resetPasswordUrl || '/auth/passwordreset';
             try {
                 await Http.post(apiUrl, {
@@ -239,6 +275,12 @@ class AuthContainer extends Component {
         }
     }
 
+    /**
+     * Return a error in App Masters pattern
+     * @param key
+     * @param message
+     * @returns {{body: {}}}
+     */
     mountError (key, message) {
         return {
             body: {
@@ -247,6 +289,11 @@ class AuthContainer extends Component {
         };
     }
 
+    /**
+     * If a error is defined, try to find if it's an error of this field
+     * @param field
+     * @returns {*}
+     */
     getFieldError (field) {
         return this.state.error && this.state.error.body && this.state.error.body[field];
     }
@@ -306,14 +353,12 @@ class AuthContainer extends Component {
     }
 
     /**
-     * Return correct view for each route. If a children is defined, return children
+     * Return correct view for each route
      * @returns {*}
      */
     getView () {
         const route = this.props.route || this.state.route;
-        if (this.props.children) {
-            return this.props.children;
-        } else if (this.props[`${route}View`]) {
+        if (this.props[`${route}View`]) {
             return this.props[`${route}View`];
         } else {
             throw new Error(`View not defined for this route, please define a ${route}View`);
@@ -321,7 +366,13 @@ class AuthContainer extends Component {
     }
 
     render () {
-        return React.createElement(this.getView(), this.mountProps());
+        if (this.props.children) {
+            // Children defined: clone element with new props
+            return React.cloneElement(this.props.children, this.mountProps());
+        } else {
+            // Get view defined to defined route, creating element with new props
+            return React.createElement(this.getView(), this.mountProps());
+        }
     }
 }
 
