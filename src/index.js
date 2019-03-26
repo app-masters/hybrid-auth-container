@@ -223,7 +223,7 @@ class AuthContainer extends Component {
             try {
                 await Http.post(apiUrl, {email: requestedEmail, code: code});
                 this.changeStep(3);
-                this.setState({loading: false, email: email, code: code});
+                this.setState({loading: false, email: requestedEmail, code: code});
             } catch (error) {
                 this.setState({loading: false, error: error});
                 this.checkAndCallPropFunction('onPasswordResetFail', error);
@@ -342,6 +342,7 @@ class AuthContainer extends Component {
             break;
         case 'recoverPassword':
             authProps.changeStep = this.changeStep;
+            authProps.recoveryStep = this.state.step;
             authProps.requestCode = this.requestPasswordRequestCode;
             authProps.validateCode = this.requestPasswordValidateCode;
             authProps.resetPassword = this.resetPasswordWithCode;
